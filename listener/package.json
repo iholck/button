@@ -1,0 +1,19 @@
+{
+  "name": "listener",
+  "version": "0.1.1",
+  "description": "Service to log information being send on MQTT to a MYSQL database",
+  "main": "app.js",
+  "dependencies": {
+    "mqtt": "^2.14.0",
+    "mysql": "^2.15.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node app.js"
+  },
+  "keywords": [
+    "alpha"
+  ],
+  "author": "Ivar Holck",
+  "license": "ISC"
+}

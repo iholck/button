@@ -1,0 +1,68 @@
+version: "3.4"
+services:
+  mosquitto:
+    # replace username/repo:tag with your name and image details
+    image: iholck/modmosquitto:1
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+    volumes:
+      - mqtt-log:/mosquitto/log
+      - mqtt-data:/mosquitto/data
+      - mqtt-config:/mosquitto/config
+
+  mysql:
+    # replace username/repo:tag with your name and image details
+    image: mysql
+    ports:
+      - "3306:3306"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1000M
+      restart_policy:
+        condition: on-failure
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=true
+      - MYSQL_ONETIME_PASSWORD=true
+      - MYSQL_DATABASE=ButtonBase
+      - MYSQL_USER=ButtonUser
+      - MYSQL_PASSWORD=ButtonS3cretP@ssw0rd!
+    volumes:
+      - db-data:/var/lib/mysql
+  listener:
+    # replace username/repo:tag with your name and image details
+    image: iholck/listener:1
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+      restart_policy:
+        condition: on-failure
+
+#    volumes:
+#      - "/Users/ivar/docker/button/mysql:/var/lib/mysql"
+
+  adminer:
+        image: adminer
+        restart: always
+        ports:
+            - "8080:8080"
+
+volumes:
+  db-data:
+  mqtt-log:
+  mqtt-data:
+  mqtt-config:
