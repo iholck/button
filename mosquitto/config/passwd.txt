@@ -1,2 +1,6 @@
-button:$6$LAgPWzRNndwzH92H$eCjyd/krwB5Kp06c9sXi53G7abE8nIPwIH/vLczPHFM+8S6LzpwYV6oYVfKBVHds9R717HyvwiJCksfIYwthrw==
-client:$6$x0wrpn9vdvT1oaPi$9HIrsWZrWMMmnXM6HZElHYj4voE7AXbQzkOuAuh2P66WuSAmtorIAtjn/Jr9989/aFeu2GjWOgXtnJfHoPfWPw==
+#Password file used for building the mosquitto image.
+#Once built and started, you need to log on to the mosquitto image
+#and encrypt the password using the command 'mosquitto_passwd -c /mosquitto/config/passwd.txt'
+#
+
+button:pressme!!
