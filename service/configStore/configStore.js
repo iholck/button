@@ -17,8 +17,16 @@ configRouter.post('/', (req, res) => {
 	const regexp = req.body.regexp;
 
 
-		res.send(Tools.createConfEntry(mac,name,regexp));
+		res.json(Tools.createConfEntry(mac,name,regexp));
 
+});
+
+configRouter.get('/unconfigured', (req, res) => {
+  res.json(Tools.getUnconfigured());
+});
+
+configRouter.get('/configured', (req, res) => {
+  res.json(Tools.getConfigured());
 });
 
 configRouter.route('/validDevice/:mac')

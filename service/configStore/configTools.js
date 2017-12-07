@@ -32,9 +32,16 @@ constructor() {
 
   deleteByMac(mac){
 
-   this.config = this.config.filter(macAddr => macAddr.id !== mac);
+   this.config = this.config.filter(macAddr => macAddr.mac !== mac);
   }
 
+  getUnconfigured(){
+    return this.config.filter(configured => configured.configured === false);
+  }
+
+  getConfigured(){
+    return this.config.filter(configured => configured.configured === true);
+  }
   setConfigured(mac){
     const myIndex= this.config.findIndex((obj => obj.mac === mac));
     this.config[myIndex].configured = true;
