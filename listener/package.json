@@ -4,6 +4,7 @@
   "description": "Service to log information being send on MQTT to a MYSQL database",
   "main": "app.js",
   "dependencies": {
+    "jquery": "^3.2.1",
     "mqtt": "^2.14.0",
     "mysql": "^2.15.0"
   },
