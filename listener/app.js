@@ -1,13 +1,20 @@
 'use strict';
 
 
-var serverIP = 'mosquitto';
+//var serverIP = 'mosquitto';
+var serverIP = '10.10.12.72';
 var databaseName = 'ButtonBase';
 var databaseTableName = "ButtonTable";
 var mqtt = require('mqtt');
 var tools = require('./tools');
 var crypto = require('crypto');
-var $ = require('jQuery');
+var request = require('request');
+
+
+
+
+
+
 var mqttOptions = {
     keepalive: 10,
     clientId: "listener."+crypto.randomBytes(20).toString('hex'),
@@ -28,7 +35,8 @@ var mqttOptions = {
   };
 var mqttClient = mqtt.connect('mqtt://' + serverIP, mqttOptions);
 var sqlConnection = require('./db');
-var validMacs = [];
+var deviceConfig = [];
+
 
 
 function checkDatabase() {
@@ -69,14 +77,39 @@ function checkTableSetup() {
     });
 };
 
-function getValidMacs(){
+function getDeviceConfig(){
   var macs = [];
-  $.getJSON('http://10.10.12.72:3000/config/getConfigured',function(data) {
-    data.forEach( function (entry){
-          validMacs.push(entry.mac);
-      });
-    });
-    return macs;
+  var getValidMacsOptions = {
+      url: 'http://10.10.12.72:3000/config',
+      method: 'GET',
+      headers: {
+          'Accept': 'application/json',
+          'Accept-Charset': 'utf-8'
+      }
+  };
+
+  request(getValidMacsOptions, function(err, res, body) {
+
+    deviceConfig = JSON.parse(body);
+    console.log('DeviceConfig: '+body);
+    setTimeout(getDeviceConfig,60000);
+  });
+};
+
+function storeNewMac(mac){
+  var storeMacOptions = {
+      'url': 'http://10.10.12.72:3000/config',
+      'method': 'POST',
+      'headers': {
+          'Accept': 'application/json',
+          'Accept-Charset': 'utf-8'
+      },
+      'json': { 'mac':''}
+  };
+  storeMacOptions.json.mac = mac;
+request(storeMacOptions, function(err, res, body) {
+console.log('Storing: '+JSON.stringify(storeMacOptions));
+  });
 };
 
 function storeData(buttonName, buttonData) {
@@ -99,8 +132,8 @@ function storeData(buttonName, buttonData) {
 
 console.log('Doing DB checks..');
 checkTableSetup();
-console.log('Getting authorized mac addresses');
-validMacs = getValidMacs();
+console.log('Getting device configurations');
+getDeviceConfig();
 
 console.log('Great! Going on to MQTT!');
 
@@ -112,17 +145,35 @@ mqttClient.on('connect', function() {
 });
 
 mqttClient.on('message', function(topic, message) {
-    // message is Buffer
+    var i;
+    var len;
+    var isFound = false;
+
     var parsMessage = message.toString().split(":");
+    console.log(message.toString());
     // The format is macAddr:value.
     if (typeof(parsMessage[1]) !== "undefined" && parsMessage[1] !== null) {
-      if(validMacs.indexOf(parsMessage[0])!== -1){
-        storeData(parsMessage[0], parsMessage[1]);
-      } else {
-        console.log('Invalid MAC Address');
-      }
-    }
+      for (i = 0, len = deviceConfig.length; i < len; i++) {
+        if(deviceConfig[i].mac === parsMessage[0]){
+          if(deviceConfig[i].configured === true){
+            console.log('Mac found and valid. Storing data');
+            storeData(parsMessage[0], parsMessage[1]);
+            isFound = true;
+            break;
+          }else{
+            console.log('Mac found but not authorized: '+parsMessage[0]);
+            isFound = true;
+            break;
+          };
 
-    //  console.log(message.toString());
-    //  client.end()
+        }
+
+      }
+      if(isFound === false){
+          console.log('Mac not found, trying to store '+parsMessage[0]);
+          storeNewMac(parsMessage[0]);
+          setTimeout(getDeviceConfig,1000);
+        }
+
+    }
 });

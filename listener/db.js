@@ -2,7 +2,8 @@
 var mysql = require('mysql');
 
 var pool = mysql.createPool({
-    host     : 'mysql',
+//    host     : 'mysql',
+    host     : '10.10.12.72',
     user     : 'ButtonUser',
     password : 'ButtonS3cretP@ssw0rd!',
     database : 'ButtonBase',
