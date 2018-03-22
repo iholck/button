@@ -2,7 +2,7 @@
 
 
 //var serverIP = 'mosquitto';
-var serverIP = '10.10.12.72';
+var serverIP = '172.16.0.132';
 var databaseName = 'ButtonBase';
 var databaseTableName = "ButtonTable";
 var mqtt = require('mqtt');
@@ -80,7 +80,7 @@ function checkTableSetup() {
 function getDeviceConfig(){
   var macs = [];
   var getValidMacsOptions = {
-      url: 'http://10.10.12.72:3000/config',
+      url: 'http://172.16.0.132:3000/config',
       method: 'GET',
       headers: {
           'Accept': 'application/json',
@@ -98,7 +98,7 @@ function getDeviceConfig(){
 
 function storeNewMac(mac){
   var storeMacOptions = {
-      'url': 'http://10.10.12.72:3000/config',
+      'url': 'http://172.16.0.132:3000/config',
       'method': 'POST',
       'headers': {
           'Accept': 'application/json',
@@ -172,7 +172,7 @@ mqttClient.on('message', function(topic, message) {
       if(isFound === false){
           console.log('Mac not found, trying to store '+parsMessage[0]);
           storeNewMac(parsMessage[0]);
-          setTimeout(getDeviceConfig,1000);
+         setTimeout(getDeviceConfig,1000);
         }
 
     }
